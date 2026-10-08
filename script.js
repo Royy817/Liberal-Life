@@ -50,6 +50,32 @@
   const consultationId = 'AL-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' +
     (window.crypto && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  const detailsInput = form.elements.namedItem('details');
+  const exampleButton = document.getElementById('insert-example');
+  const examples = {
+    career: '転職するかまだ迷っています。今の働き方や、これからの選択肢について相談したいです。',
+    rent: '引っ越しを考えています。希望のエリアや予算を整理するところから相談したいです。',
+    utility: '電気・ガス・インターネットについて、今の契約や切り替えの進め方を相談したいです。'
+  };
+  function updateDetailsCount() {
+    document.getElementById('char-count').textContent = detailsInput.value.length + ' / 1000';
+    exampleButton.disabled = detailsInput.value.trim().length > 0;
+  }
+  detailsInput.addEventListener('input', updateDetailsCount);
+  exampleButton.addEventListener('click', function () {
+    if (detailsInput.value.trim()) return;
+    const selected = form.querySelector('input[name="category"]:checked');
+    detailsInput.value = examples[selected && selected.value] || 'まだ具体的には決まっていませんが、まずは話を聞いてみたいです。';
+    detailsInput.dispatchEvent(new Event('input', { bubbles: true }));
+    detailsInput.focus();
+  });
+  updateDetailsCount();
+  const mobileConsult = document.querySelector('.mobile-consult');
+  if (mobileConsult && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      mobileConsult.classList.toggle('in-form', entries[0].isIntersecting);
+    }, { threshold: 0 }).observe(form);
+  }
 
   function refreshSelection() {
     result.hidden = true;

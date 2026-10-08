@@ -35,3 +35,7 @@ python -m http.server 4173 --directory public
 運用手順・管理方法・公開前確認は [docs/OPERATIONS.md](docs/OPERATIONS.md)。
 
 現在は `previewOnly: true` により本番ビルドを禁止し、URL共有用のプレビューのみを許可しています。検索掲載防止はアクセス認証ではないため、URLを転送された人も閲覧できます。一般公開を再開する場合は、明示的な指示を受けた上でpreviewOnly設定とX-Robots-Tagを見直します。
+
+### 限定プレビューの受付先
+
+`VERCEL_ENV=preview node scripts/build.mjs` はデザイン確認用です。配信する設定から個人名・メール・LINE URLを除外し、フォームのメッセージ作成とコピーを利用できます。連絡先の正式な設定は `site-config.js` に保持します。ローカル動作確認は `node scripts/build.mjs` で実行できます。本番公開のガードは継続しています。

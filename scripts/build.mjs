@@ -15,6 +15,18 @@ for (const file of ['index.html', 'privacy.html', 'style.css', 'script.js', 'sit
   await copyFile(file, `public/${file}`);
 }
 const preview = process.env.VERCEL_ENV !== 'production';
+// Hosted previews are for design review; personal contact details stay in source only.
+if (process.env.VERCEL_ENV === 'preview') {
+  const safeConfig = { ...config, contactEmail: '', personalLineUrl: '', operatorName: 'AIPLUN', privacyConfirmed: false };
+  await writeFile('public/site-config.js', 'window.SITE_CONFIG = Object.freeze(' + JSON.stringify(safeConfig, null, 2) + ');\n');
+  for (const file of ['index.html', 'privacy.html']) {
+    let html = await readFile(`public/${file}`, 'utf8');
+    for (const value of [config.contactEmail, config.personalLineUrl, config.operatorName]) {
+      if (value) html = html.split(value).join(value === config.operatorName ? 'AIPLUN' : '');
+    }
+    await writeFile(`public/${file}`, html);
+  }
+}
 if (preview) {
   for (const file of ['index.html', 'privacy.html']) {
     const html = await readFile(`public/${file}`, 'utf8');
