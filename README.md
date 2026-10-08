@@ -21,8 +21,8 @@ python -m http.server 4173 --directory public
 ```
 
 `http://localhost:4173` を開きます。ブラウザテストはPlaywrightを用意して
-`NODE_PATH=/path/to/node_modules node tests/e2e.cjs`（サーバー起動中）を実行します。
-`BASE_URL` でテスト先を変更できます。テストは外部へメール・LINEを送信しません。
+`NODE_PATH=/path/to/node_modules node tests/e2e.cjs`（テスト用サーバーは自動起動）を実行します。
+`BASE_URL` でテスト先を変更できます。既存のChromiumを利用する場合は `CHROMIUM_EXECUTABLE_PATH` を指定できます。テストは外部へメール・LINEを送信しません。
 
 ## Vercel
 

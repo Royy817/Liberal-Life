@@ -46,6 +46,7 @@
   lineAction.hidden = !validLine;
   lineMissing.hidden = validLine || !validEmail;
   document.getElementById('no-contact').hidden = validLine || validEmail;
+  if (!validLine) document.getElementById('send-hint').textContent = validEmail ? '① メッセージを確認 → ② メールを作成 → ③ メールアプリで送信。アプリが起動しない場合は、コピーした文章を普段のメールに貼り付けてお送りください。宛先：' + email : 'コピーした文章を、お知らせ済みの連絡先に貼り付けて送信してください。';
   const consultationId = 'AL-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' +
     (window.crypto && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
