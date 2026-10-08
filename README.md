@@ -33,3 +33,5 @@ python -m http.server 4173 --directory public
 確認が済んだらprivacy.htmlを確定し、設定をtrueにして本番ビルド・再テスト・公開を行います。
 
 運用手順・管理方法・公開前確認は [docs/OPERATIONS.md](docs/OPERATIONS.md)。
+
+現在は `previewOnly: true` により本番ビルドを禁止し、URL共有用のプレビューのみを許可しています。検索掲載防止はアクセス認証ではないため、URLを転送された人も閲覧できます。一般公開を再開する場合は、明示的な指示を受けた上でpreviewOnly設定とX-Robots-Tagを見直します。

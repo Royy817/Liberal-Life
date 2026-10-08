@@ -2,6 +2,8 @@
 // 空欄・不正なURLならLINE導線を表示せず、メール相談に切り替えます。
 // このファイルは公開されます。秘密鍵や個人情報を追加しないでください。
 window.SITE_CONFIG = Object.freeze({
+  // URL共有用のプレビューのみ。本番ビルドを禁止します。
+  previewOnly: true,
   contactEmail: "roy.0817.soccer@gmail.com",
   personalLineUrl: "",
   operatorName: "尾島 蓮瑛（AIPLUN）",

@@ -3,6 +3,9 @@ import vm from 'node:vm';
 const context = { window: {} };
 vm.runInNewContext(await readFile('site-config.js', 'utf8'), context);
 const config = context.window.SITE_CONFIG;
+if (process.env.VERCEL_ENV === 'production' && config.previewOnly !== false) {
+  throw new Error('現在はURL共有用プレビューのみです。本番公開は明示的に許可されていません。');
+}
 if (process.env.VERCEL_ENV === 'production' && config.privacyConfirmed !== true) {
   throw new Error('公開前にsite-config.jsの運営者情報・個人情報保護方針を確認してください。プレビューは作成できます。');
 }
