@@ -1,86 +1,133 @@
-const form = document.getElementById("contactForm");
-const success = document.getElementById("formSuccess");
-const contactEmail = window.SITE_CONFIG?.contactEmail || "roy.0817.soccer@gmail.com";
+(function () {
+  'use strict';
 
-const validators = {
-  name: (value) => (value.trim() ? "" : "お名前を入力してください。"),
-  email: (value) => {
-    if (!value.trim()) return "メールアドレスを入力してください。";
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailPattern.test(value) ? "" : "メールアドレスの形式をご確認ください。";
-  },
-  phone: (value) => {
-    if (!value.trim()) return "";
-    const phonePattern = /^[0-9-+()\s]{8,}$/;
-    return phonePattern.test(value) ? "" : "電話番号の形式をご確認ください。";
-  },
-  service: (value) => (value ? "" : "ご相談したい事業を選択してください。"),
-  message: (value) => (value.trim() ? "" : "お問い合わせ内容を入力してください。"),
-};
+  const config = window.SITE_CONFIG || {};
+  const allowedCategories = {
+    career: '転職・キャリア',
+    rent: '賃貸・引っ越し',
+    utility: '電気・ガス・通信（インフラ）'
+  };
+  const form = document.getElementById('consult-form');
+  const cards = Array.from(document.querySelectorAll('[data-service]'));
+  const categoryRadios = Array.from(document.querySelectorAll('input[name="category"]'));
+  const messageDraft = document.getElementById('draft');
+  const error = document.getElementById('form-error');
+  const result = document.getElementById('result');
+  const lineAction = document.getElementById('line-action');
+  const lineMissing = document.getElementById('line-missing');
+  const mailAction = document.getElementById('mail-action');
+  const copyButton = document.getElementById('copy-draft');
+  const copyStatus = document.getElementById('copy-status');
+  const year = document.getElementById('year');
+  const email = typeof config.contactEmail === 'string' ? config.contactEmail.trim() : '';
+  const lineUrl = typeof config.lineOfficialUrl === 'string' ? config.lineOfficialUrl.trim() : '';
+  const validLine = /^https:\/\/(lin\.ee|line\.me|page\.line\.me)\//i.test(lineUrl);
 
-function setError(name, message) {
-  const node = document.querySelector(`[data-for="${name}"]`);
-  if (node) node.textContent = message;
-}
+  year.textContent = String(new Date().getFullYear());
+  lineAction.hidden = !validLine;
+  lineMissing.hidden = validLine;
 
-function validateField(field) {
-  const validate = validators[field.name];
-  if (!validate) return true;
-  const message = validate(field.value);
-  setError(field.name, message);
-  return !message;
-}
-
-Object.keys(validators).forEach((name) => {
-  const field = form.elements.namedItem(name);
-  if (!field) return;
-
-  field.addEventListener("blur", () => {
-    validateField(field);
-  });
-
-  field.addEventListener("input", () => {
-    if (document.querySelector(`[data-for="${name}"]`)?.textContent) {
-      validateField(field);
-    }
-  });
-});
-
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  success.textContent = "";
-
-  const fields = Object.keys(validators)
-    .map((name) => form.elements.namedItem(name))
-    .filter(Boolean);
-
-  const isValid = fields.every((field) => validateField(field));
-  if (!isValid) {
-    return;
+  function refreshSelection() {
+    const active = form.querySelector('input[name="category"]:checked');
+    const value = active ? active.value : '';
+    cards.forEach(function (card) {
+      card.setAttribute('aria-pressed', String(card.dataset.service === value));
+    });
   }
 
-  const data = Object.fromEntries(new FormData(form).entries());
-  localStorage.setItem("liberal-life-partner-contact-draft", JSON.stringify(data));
-  const subject = `ホームページからのお問い合わせ: ${data.service}`;
-  const body = [
-    "ホームページからお問い合わせがありました。",
-    "",
-    `お名前: ${data.name}`,
-    `メールアドレス: ${data.email}`,
-    `電話番号: ${data.phone || "未入力"}`,
-    `ご相談したい事業: ${data.service}`,
-    "",
-    "お問い合わせ内容:",
-    data.message,
-  ].join("\n");
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
+      const radio = categoryRadios.find(function (item) {
+        return item.value === card.dataset.service;
+      });
+      if (radio) {
+        radio.checked = true;
+        refreshSelection();
+        document.getElementById('consult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+  categoryRadios.forEach(function (radio) { radio.addEventListener('change', refreshSelection); });
 
-  const gmailUrl = new URL("https://mail.google.com/mail/");
-  gmailUrl.searchParams.set("view", "cm");
-  gmailUrl.searchParams.set("fs", "1");
-  gmailUrl.searchParams.set("to", contactEmail);
-  gmailUrl.searchParams.set("su", subject);
-  gmailUrl.searchParams.set("body", body);
+  function generateText(category, timing, nickname, details, consent) {
+    const params = new URLSearchParams(window.location.search);
+    const rawSource = params.get('ref') || params.get('utm_source') || '';
+    const source = rawSource.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+    const parts = [
+      '【AIPLUN LIFE｜相談のお問い合わせ】',
+      '',
+      'ご相談カテゴリー：' + allowedCategories[category],
+      'ご相談の時期：' + timing,
+      'お名前：' + (nickname || '未記入'),
+      '',
+      '相談内容：',
+      details || 'まずは相談したいです。',
+      '',
+      'Liberal Life担当者への情報共有：' + (consent ? '希望する・同意する' : '現時点では希望しない')
+    ];
+    if (source) parts.push('ご案内元：' + source);
+    parts.push('', '※AIPLUN相談窓口へのメッセージです。');
+    return parts.join('\n');
+  }
 
-  window.open(gmailUrl.toString(), "_blank", "noopener");
-  success.textContent = "Gmailのメール作成画面を開きました。内容をご確認のうえ送信してください。";
-});
+  function validEmailAddress(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '');
+  }
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    error.textContent = '';
+    copyStatus.textContent = '';
+    const category = form.querySelector('input[name="category"]:checked');
+    const timing = form.elements.namedItem('timing');
+    if (!category || !Object.hasOwn(allowedCategories, category.value)) {
+      error.textContent = '相談カテゴリーを選択してください。';
+      document.getElementById('category-options').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return;
+    }
+    if (!timing.value) {
+      error.textContent = '相談したい時期を選択してください。';
+      timing.focus();
+      return;
+    }
+
+    const nickname = (form.elements.namedItem('nickname').value || '').trim().slice(0, 40);
+    const details = (form.elements.namedItem('details').value || '').trim().slice(0, 1000);
+    const consent = form.elements.namedItem('shareConsent').checked;
+    const draft = generateText(category.value, timing.value, nickname, details, consent);
+    messageDraft.value = draft;
+
+    if (validLine) {
+      lineAction.href = lineUrl;
+    }
+
+    if (validEmailAddress(email)) {
+      mailAction.href = 'mailto:' + email + '?subject=' +
+        encodeURIComponent('AIPLUN LIFE｜' + allowedCategories[category.value] + 'の相談') +
+        '&body=' + encodeURIComponent(draft);
+      mailAction.hidden = false;
+    } else {
+      mailAction.hidden = true;
+    }
+
+    result.hidden = false;
+    result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  copyButton.addEventListener('click', async function () {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(messageDraft.value);
+      } else {
+        messageDraft.focus();
+        messageDraft.select();
+        if (!document.execCommand('copy')) throw new Error('copy failed');
+      }
+      copyStatus.textContent = 'コピーしました。LINEのトークに貼り付けて送信してください。';
+    } catch (err) {
+      messageDraft.focus();
+      messageDraft.select();
+      copyStatus.textContent = '文章を選択しました。コピーしてLINEやメールに貼り付けてください。';
+    }
+  });
+})();
