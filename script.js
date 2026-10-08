@@ -2,12 +2,35 @@
   'use strict';
 
   const config = window.SITE_CONFIG || {};
+  const email = typeof config.contactEmail === 'string' ? config.contactEmail.trim() : '';
+  const validEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(email);
+  const lineUrl = typeof config.personalLineUrl === 'string' ? config.personalLineUrl.trim() : '';
+  function isPersonalLineUrl(value) {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' && !url.username && !url.password && !url.port &&
+        ((url.hostname === 'line.me' && /^\/ti\/p\/[^/]+$/.test(url.pathname)) ||
+         (url.hostname === 'lin.ee' && /^\/[^/]+$/.test(url.pathname))) &&
+        !url.search && !url.hash;
+    } catch (_) { return false; }
+  }
+  const validLine = isPersonalLineUrl(lineUrl);
+  const notice = document.getElementById('preview-notice');
+  if (notice) notice.hidden = config.privacyConfirmed === true;
+  document.querySelectorAll('[data-contact-email]').forEach(function (link) {
+    link.hidden = !validEmail;
+    if (validEmail) { link.textContent = email; link.href = 'mailto:' + email; }
+  });
+  document.querySelectorAll('[data-operator-name]').forEach(function (element) {
+    element.textContent = config.operatorName || 'AIPLUN（運営者情報を確認中）';
+  });
   const allowedCategories = {
     career: '転職・キャリア',
     rent: '賃貸・引っ越し',
     utility: '電気・ガス・通信（インフラ）'
   };
   const form = document.getElementById('consult-form');
+  if (!form) return;
   const cards = Array.from(document.querySelectorAll('[data-service]'));
   const categoryRadios = Array.from(document.querySelectorAll('input[name="category"]'));
   const messageDraft = document.getElementById('draft');
@@ -19,15 +42,16 @@
   const copyButton = document.getElementById('copy-draft');
   const copyStatus = document.getElementById('copy-status');
   const year = document.getElementById('year');
-  const email = typeof config.contactEmail === 'string' ? config.contactEmail.trim() : '';
-  const lineUrl = typeof config.lineOfficialUrl === 'string' ? config.lineOfficialUrl.trim() : '';
-  const validLine = /^https:\/\/(lin\.ee|line\.me|page\.line\.me)\//i.test(lineUrl);
-
   year.textContent = String(new Date().getFullYear());
   lineAction.hidden = !validLine;
-  lineMissing.hidden = validLine;
+  lineMissing.hidden = validLine || !validEmail;
+  document.getElementById('no-contact').hidden = validLine || validEmail;
+  const consultationId = 'AL-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' +
+    (window.crypto && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 
   function refreshSelection() {
+    result.hidden = true;
     const active = form.querySelector('input[name="category"]:checked');
     const value = active ? active.value : '';
     cards.forEach(function (card) {
@@ -43,7 +67,7 @@
       if (radio) {
         radio.checked = true;
         refreshSelection();
-        document.getElementById('consult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('consult').scrollIntoView({ behavior: motion, block: 'start' });
       }
     });
   });
@@ -55,6 +79,7 @@
     const source = rawSource.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
     const parts = [
       '【AIPLUN LIFE｜相談のお問い合わせ】',
+      '相談ID：' + consultationId,
       '',
       'ご相談カテゴリー：' + allowedCategories[category],
       'ご相談の時期：' + timing,
@@ -63,15 +88,11 @@
       '相談内容：',
       details || 'まずは相談したいです。',
       '',
-      'Liberal Life担当者への情報共有：' + (consent ? '希望する・同意する' : '現時点では希望しない')
+      '専門担当者の案内：' + (consent ? '話を聞いてみたい' : 'まずはAIPLUNへの相談のみ') + '\n第三者への情報共有：未同意（共有前に別途確認）'
     ];
     if (source) parts.push('ご案内元：' + source);
     parts.push('', '※AIPLUN相談窓口へのメッセージです。');
     return parts.join('\n');
-  }
-
-  function validEmailAddress(value) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || '');
   }
 
   form.addEventListener('submit', function (event) {
@@ -82,10 +103,11 @@
     const timing = form.elements.namedItem('timing');
     if (!category || !Object.hasOwn(allowedCategories, category.value)) {
       error.textContent = '相談カテゴリーを選択してください。';
-      document.getElementById('category-options').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      categoryRadios[0].focus();
+      document.getElementById('category-options').scrollIntoView({ block: 'center', behavior: motion });
       return;
     }
-    if (!timing.value) {
+    if (!Array.from(timing.options).some(function (option) { return option.value && option.value === timing.value; })) {
       error.textContent = '相談したい時期を選択してください。';
       timing.focus();
       return;
@@ -101,7 +123,7 @@
       lineAction.href = lineUrl;
     }
 
-    if (validEmailAddress(email)) {
+    if (validEmail) {
       mailAction.href = 'mailto:' + email + '?subject=' +
         encodeURIComponent('AIPLUN LIFE｜' + allowedCategories[category.value] + 'の相談') +
         '&body=' + encodeURIComponent(draft);
@@ -111,7 +133,12 @@
     }
 
     result.hidden = false;
-    result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('result-title').focus({ preventScroll: true });
+    result.scrollIntoView({ behavior: motion, block: 'center' });
+  });
+
+  form.addEventListener('input', function (event) {
+    if (event.target !== messageDraft) { result.hidden = true; error.textContent = ''; }
   });
 
   copyButton.addEventListener('click', async function () {
@@ -123,7 +150,7 @@
         messageDraft.select();
         if (!document.execCommand('copy')) throw new Error('copy failed');
       }
-      copyStatus.textContent = 'コピーしました。LINEのトークに貼り付けて送信してください。';
+      copyStatus.textContent = 'コピーしました。LINEやメールに貼り付けて、送信してください。';
     } catch (err) {
       messageDraft.focus();
       messageDraft.select();

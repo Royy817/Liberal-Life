@@ -1,7 +1,10 @@
-// LINE公式アカウントの「友だち追加URL」を取得後、lineOfficialUrlに設定します。
-// 例: https://lin.ee/＜実際のアカウント固有のID＞
-// 設定前はLINEボタンを表示せず、既存のメール窓口で受け付けます。
-window.SITE_CONFIG = {
+// 個人LINEの「友だち追加」からコピーした実際のHTTPSリンクを設定します。
+// 空欄・不正なURLならLINE導線を表示せず、メール相談に切り替えます。
+// このファイルは公開されます。秘密鍵や個人情報を追加しないでください。
+window.SITE_CONFIG = Object.freeze({
   contactEmail: "roy.0817.soccer@gmail.com",
-  lineOfficialUrl: "",
-};
+  personalLineUrl: "",
+  operatorName: "尾島 蓮瑛（AIPLUN）",
+  // 運営者情報・保管方針・本人同意の運用を確認してからtrueに変更。
+  privacyConfirmed: false,
+});

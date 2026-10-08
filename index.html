@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+  <div id="preview-notice" class="preview-notice">公開準備中のプレビューです。相談受付先・個人情報の取り扱いは確認中です。</div>
+  <noscript><p class="preview-notice">相談メッセージの作成にはJavaScriptが必要です。メール：<a href="mailto:roy.0817.soccer@gmail.com">roy.0817.soccer@gmail.com</a></p></noscript>
   <a class="skip-link" href="#main">本文へ移動</a>
   <header class="header">
     <div class="container header-inner">
@@ -57,8 +59,8 @@
         <div class="section-heading"><span class="eyebrow">02 / HOW IT WORKS</span><h2>相談は、シンプルな3ステップ。</h2></div>
         <div class="flow-grid">
           <div class="flow-card"><span>STEP 01</span><strong>相談内容を選ぶ</strong><p>転職・賃貸・インフラから選んで、希望時期や気になっていることを簡単に入力。</p></div>
-          <div class="flow-card"><span>STEP 02</span><strong>AIPLUNに相談</strong><p>LINEまたはメールから内容を送信。こちらから必要な点だけ確認します。</p></div>
-          <div class="flow-card"><span>STEP 03</span><strong>担当者をご案内</strong><p>希望があり、本人が情報共有に同意した場合だけLiberal Lifeの担当者へおつなぎします。</p></div>
+          <div class="flow-card"><span>STEP 02</span><strong>AIPLUNに相談</strong><p>AIPLUN運営者の個人LINEを友だち追加し、相談内容を送信。メールでも受け付けます。</p></div>
+          <div class="flow-card"><span>STEP 03</span><strong>担当者をご案内</strong><p>運営者が相談内容を確認し、ご本人の希望・共有する項目への同意を得てからLiberal Lifeの担当者へおつなぎします。</p></div>
         </div>
       </div>
     </section>
@@ -70,23 +72,26 @@
           <fieldset class="field-set"><legend>01　相談したいテーマ <span class="required">必須</span></legend><div class="segmented" id="category-options"><label><input type="radio" name="category" value="career" required><span>転職</span></label><label><input type="radio" name="category" value="rent"><span>賃貸</span></label><label><input type="radio" name="category" value="utility"><span>インフラ</span></label></div></fieldset>
           <div class="field-set"><label for="timing">02　相談したい時期 <span class="required">必須</span></label><select id="timing" name="timing" required><option value="">選択してください</option><option value="できるだけ早く">できるだけ早く</option><option value="1〜3か月以内">1〜3か月以内</option><option value="3か月より先">3か月より先</option><option value="まずは情報収集・相談だけ">まずは情報収集・相談だけ</option></select></div>
           <div class="field-set"><label for="nickname">03　お名前・ニックネーム <span class="optional">任意</span></label><input id="nickname" name="nickname" type="text" maxlength="40" autocomplete="nickname" placeholder="例）山田"><small class="field-hint">匿名・ニックネームでも相談可能です。</small></div>
-          <div class="field-set"><label for="details">04　気になっていること <span class="optional">任意</span></label><textarea id="details" name="details" rows="3" maxlength="1000" placeholder="例）京都市内で来月から一人暮らしを始めたい"></textarea></div>
-          <div class="consent"><label><input id="share-consent" name="shareConsent" type="checkbox"><span><strong>専門担当者への紹介を希望する</strong><small>AIPLUNがご相談内容（選択したテーマ、時期、任意のお名前と記入内容）を株式会社Liberal Lifeの担当者へ共有することに同意します。未チェックの場合は、まずAIPLUNだけが相談を受け付け、紹介前に別途同意を確認します。</small></span></label></div>
+          <div class="field-set"><label for="details">04　気になっていること <span class="optional">任意</span></label><textarea id="details" name="details" rows="3" maxlength="1000" placeholder="例）京都市内で来月から一人暮らしを始めたい"></textarea><small class="field-hint">住所の番地・本人確認書類・口座番号などは入力しないでください。</small></div>
+          <div class="consent"><label><input id="share-consent" name="shareConsent" type="checkbox"><span><strong>専門担当者への案内も聞いてみたい（任意）</strong><small>このチェックだけで情報を共有することはありません。AIPLUN運営者が相談を確認した後、提供先・共有する項目をお伝えし、LINEまたはメールで改めて同意を取得します。</small></span></label></div>
           <div id="form-error" class="error-message" role="alert" aria-live="polite"></div>
+          <p class="privacy-guide"><a href="./privacy.html" target="_blank" rel="noopener">個人情報の取り扱い</a>をご確認ください。入力内容はこの画面内だけで処理し、送信・保存しません。</p>
           <div class="submit-actions"><button class="button button-dark button-full" id="copy-button" type="submit">相談メッセージを作る <span aria-hidden="true">→</span></button><small>このフォームから個人情報が自動送信されることはありません。</small></div>
           <div id="result" class="result" hidden>
-            <h3>相談メッセージができました</h3><p>内容を確認して、LINEまたはメールで送信してください。</p>
+            <h3 id="result-title" tabindex="-1">相談メッセージができました</h3><p>内容を確認して、LINEまたはメールで送信してください。</p>
             <textarea id="draft" rows="9" readonly aria-label="作成した相談メッセージ"></textarea>
-            <div class="result-actions"><button type="button" class="button button-light" id="copy-draft">メッセージをコピー</button><a id="line-action" class="button button-line" href="#" target="_blank" rel="noopener noreferrer" hidden>LINEで相談する ↗</a><a id="mail-action" class="button button-light" href="#">メールで相談する ↗</a></div>
+            <div class="result-actions"><button type="button" class="button button-light" id="copy-draft">メッセージをコピー</button><a id="line-action" class="button button-line" target="_blank" rel="noopener noreferrer" hidden>個人LINEを友だち追加 ↗</a><a id="mail-action" class="button button-light" hidden>メールを作成する ↗</a></div>
             <p id="copy-status" class="small-status" aria-live="polite"></p>
+            <p id="no-contact" class="line-missing" hidden>受付先の設定を確認中です。メッセージをコピーして、案内を受けた連絡先へお送りください。</p>
             <p id="line-missing" class="line-missing" hidden>LINE受付は接続準備中です。現在はメールからご相談いただけます。</p>
-            <p class="result-hint">※LINEでは友だち追加後、コピーした文章をトークに貼り付けて送信してください。メールでも送信操作が必要です。</p>
+            <p class="result-hint">① メッセージをコピー → ② 個人LINEを友だち追加 → ③ トークに貼り付けて送信。友だち追加だけでは相談内容は届きません。メールもご自身で送信してください。</p>
           </div>
         </form>
       </div>
     </section>
-    <section class="faq section" id="faq"><div class="container faq-grid"><div class="section-heading"><span class="eyebrow">04 / FAQ</span><h2>よくある質問</h2></div><div class="faq-items"><details><summary>相談したら必ず契約しないといけませんか？</summary><p>いいえ。相談や紹介によって契約が義務づけられることはありません。提携先のサービスを利用するかどうかは、ご自身で判断いただけます。</p></details><details><summary>AIPLUNは何を担当しますか？</summary><p>相談の受付と内容整理、希望された方への担当者案内を行います。専門的な提案や契約等は提携先担当者が行います。</p></details><details><summary>費用はかかりますか？</summary><p>AIPLUNへの最初の相談に費用はかかりません。提携先のサービス料金や契約条件は、担当者への確認をお願いします。</p></details><details><summary>個人情報はいつ共有されますか？</summary><p>相談内容は、本人が希望・同意した場合に限ってLiberal Lifeの担当者へ共有します。未同意の状態での第三者提供は行いません。</p></details></div></div></section>
+    <section class="faq section" id="faq"><div class="container faq-grid"><div class="section-heading"><span class="eyebrow">04 / FAQ</span><h2>よくある質問</h2></div><div class="faq-items"><details><summary>相談したら必ず契約しないといけませんか？</summary><p>いいえ。相談や紹介によって契約が義務づけられることはありません。提携先のサービスを利用するかどうかは、ご自身で判断いただけます。</p></details><details><summary>AIPLUNは何を担当しますか？</summary><p>相談の受付と内容整理、希望された方への担当者案内を行います。専門的な提案や契約等は提携先担当者が行います。</p></details><details><summary>費用はかかりますか？</summary><p>AIPLUNへの最初の相談に費用はかかりません。提携先のサービス料金や契約条件は、担当者への確認をお願いします。紹介先での成約等により、AIPLUNが紹介報酬を受け取る場合があります。</p></details><details><summary>個人情報はいつ共有されますか？</summary><p>相談内容は、本人が希望・同意した場合に限ってLiberal Lifeの担当者へ共有します。未同意の状態での第三者提供は行いません。</p></details></div></div></section>
   </main>
+  <a class="mobile-consult" href="#consult">相談メッセージを作る <span aria-hidden="true">↗</span></a>
   <footer class="footer"><div class="container footer-inner"><div><strong>AIPLUN LIFE</strong><p>AIPLUNによる相談窓口 / 連携先：株式会社Liberal Life</p><small>© <span id="year">2026</span> AIPLUN. All rights reserved.</small></div><div class="footer-links"><a href="#services">相談カテゴリー</a><a href="#consult">相談する</a><a href="./privacy.html">プライバシーについて</a></div></div></footer>
   <script src="./site-config.js"></script>
   <script src="./script.js"></script>

@@ -11,3 +11,13 @@
 @media(max-width:900px){.hero-grid{gap:35px}.hero-panel{padding:25px;min-height:400px}.panel-lead{font-size:31px}.consult-grid{gap:35px}.nav{gap:10px}.nav a:not(.nav-cta){display:none}}
 @media(max-width:680px){html{scroll-padding-top:70px}.container{padding:0 20px}.header-inner{min-height:67px}.brand{font-size:15px}.brand-symbol{width:36px;height:36px}.nav-cta{font-size:12px;padding:10px 13px}.hero{padding:54px 0 63px}.hero-grid,.consult-grid,.faq-grid{grid-template-columns:1fr;gap:26px}.hero h1{font-size:clamp(37px,9vw,52px);line-height:1.35}.hero-copy{font-size:13px}.hero-panel{min-height:unset;padding:25px}.panel-lead{margin:22px 0;font-size:31px}.panel-list>div{grid-template-columns:22px 1fr auto 12px;gap:8px}.section{padding:64px 0}.section-heading{margin-bottom:23px}.service-grid,.flow-grid{grid-template-columns:1fr;gap:12px}.service-card{min-height:224px;padding:22px}.service-icon{font-size:27px;margin:5px 0}.consult-aside h2{font-size:33px;margin:12px 0}.consult-callout{margin-top:20px}.consult-form{padding:23px 18px}.footer-inner{flex-direction:column}.faq-grid{gap:12px}.hero-footnotes{gap:9px}.form-head{align-items:start;flex-direction:column;gap:4px}.segmented{gap:5px}.segmented span{font-size:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button,.service-card{transition:none}}
+
+/* hiddenはdisplay:flexなどより必ず優先する。未設定の導線を見せない。 */
+[hidden]{display:none!important}
+.preview-notice{background:#e7f3ef;color:#235a50;padding:10px 20px;text-align:center;font-size:12px;overflow-wrap:anywhere}
+.privacy-guide{font-size:12px;color:var(--sub)}.privacy-guide a{text-decoration:underline;color:#237768}
+.result textarea{overflow-wrap:anywhere}.result-actions .button{min-width:0;flex-basis:100%;white-space:normal}
+.mobile-consult{display:none}.hero-panel{animation:panel-in .7s ease-out both}
+@keyframes panel-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:680px){body{padding-bottom:80px}.mobile-consult{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:30;align-items:center;justify-content:space-between;background:#172337;color:#fff;padding:17px 24px calc(17px + env(safe-area-inset-bottom));font-size:14px;font-weight:700;box-shadow:0 -4px 20px #17233718}input[type=text],select,textarea{font-size:16px}.hero-actions .button{flex:1;gap:8px;padding:14px 12px}.header-inner{gap:10px}.nav-cta{white-space:nowrap}.brand{gap:8px}.eyebrow{overflow-wrap:anywhere}.result{padding:16px}.panel-list small{font-size:10px}.footer{padding-bottom:28px}}
+@media(prefers-reduced-motion:reduce){.hero-panel{animation:none}}
