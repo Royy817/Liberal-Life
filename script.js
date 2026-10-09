@@ -41,6 +41,46 @@
   };
   const year = document.getElementById('year');
   if (year) year.textContent = String(new Date().getFullYear());
+  // Animate visible content once. Content stays readable without JS or animation support.
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const revealed = new WeakSet();
+  const activeReveals = new Set();
+  const revealTargets = Array.from(document.querySelectorAll(
+    '.hero-content > *, .hero-bottom, .intro-grid > div, .section-heading, .service-item, ' +
+    '.customer-heading > div, .customer-principles article, .customer-transparency, .flow-card, ' +
+    '.consult-aside, .form-head, .faq-items details, .closing-inner > div, .closing-inner > a, ' +
+    '.detail-hero-grid > div, .detail-photo, .detail-summary, .service-values, .detail-feature, ' +
+    '.detail-two-col > div, .detail-checklist li, .detail-role-grid article, .detail-step-list li, ' +
+    '.detail-prep, .detail-related, .footer-inner > div'
+  ));
+  let revealObserver;
+  function setupReveals() {
+    if (revealObserver) revealObserver.disconnect();
+    if (motionPreference.matches) {
+      activeReveals.forEach(function (animation) { animation.cancel(); });
+      activeReveals.clear();
+      return;
+    }
+    if (!('IntersectionObserver' in window) || !Element.prototype.animate) return;
+    revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting || revealed.has(entry.target)) return;
+        revealed.add(entry.target);
+        revealObserver.unobserve(entry.target);
+        const animation = entry.target.animate([
+          { opacity: 0, transform: 'translateY(18px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], { duration: 620, easing: 'cubic-bezier(.2,.7,.2,1)' });
+        activeReveals.add(animation);
+        animation.finished.then(function () { activeReveals.delete(animation); }, function () { activeReveals.delete(animation); });
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
+    revealTargets.forEach(function (element) {
+      if (!revealed.has(element)) revealObserver.observe(element);
+    });
+  }
+  setupReveals();
+  if (motionPreference.addEventListener) motionPreference.addEventListener('change', setupReveals);
   const form = document.getElementById('consult-form');
   if (!form) return;
   const cards = Array.from(document.querySelectorAll('[data-service]'));
