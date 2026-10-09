@@ -47,6 +47,10 @@
   const copyButton = document.getElementById('copy-draft');
   const copyStatus = document.getElementById('copy-status');
   lineAction.hidden = !validLine;
+  if (validLine && !validEmail) {
+    document.querySelector('#result > p').textContent = '内容を確認して、個人LINEで送信してください。';
+    document.getElementById('send-hint').textContent = '① メッセージをコピー → ② 個人LINEを友だち追加 → ③ トークに貼り付けて送信。友だち追加だけでは相談内容は届きません。';
+  }
   lineMissing.hidden = validLine || !validEmail;
   document.getElementById('no-contact').hidden = validLine || validEmail;
   if (!validLine) document.getElementById('send-hint').textContent = validEmail ? '① メッセージを確認 → ② メールを作成 → ③ メールアプリで送信。アプリが起動しない場合は、コピーした文章を普段のメールに貼り付けてお送りください。宛先：' + email : 'コピーした文章を、お知らせ済みの連絡先に貼り付けて送信してください。';
