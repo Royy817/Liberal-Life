@@ -38,4 +38,4 @@ python -m http.server 4173 --directory public
 
 ### 限定プレビューの受付先
 
-`VERCEL_ENV=preview node scripts/build.mjs` はデザイン確認用です。配信する設定から個人名・メール・LINE URLを除外し、フォームのメッセージ作成とコピーを利用できます。連絡先の正式な設定は `site-config.js` に保持します。ローカル動作確認は `node scripts/build.mjs` で実行できます。本番公開のガードは継続しています。
+`VERCEL_ENV=preview node scripts/build.mjs` はデザイン確認用です。配信する設定から個人名・メールを除外（ユーザーが接続を指示した個人LINE URLは利用可能）し、フォームのメッセージ作成とコピーを利用できます。連絡先の正式な設定は `site-config.js` に保持します。ローカル動作確認は `node scripts/build.mjs` で実行できます。本番公開のガードは継続しています。

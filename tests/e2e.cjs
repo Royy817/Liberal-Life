@@ -36,7 +36,8 @@ const base = process.env.BASE_URL || 'http://localhost:4173';
  checks.push('category-specific example, existing input protected, live character count');
  await page.locator('#details').fill('京都で引っ越しを相談したい');
  await page.locator('#copy-button').click();
- assert.equal(await page.locator('#line-action').isVisible(),false);
+ assert.equal(await page.locator('#line-action').isVisible(),true);
+ assert.equal(await page.locator('#line-action').getAttribute('href'),'https://line.me/ti/p/9wwRevW_8u');
  assert.equal(await page.locator('#mail-action').isVisible(),true);
  const draft=await page.locator('#draft').inputValue();
  assert.match(draft,/相談ID：AL-/); assert.match(draft,/未同意/);
@@ -44,7 +45,7 @@ const base = process.env.BASE_URL || 'http://localhost:4173';
  assert.equal(new URL(mail).searchParams.get('body'),draft);
  await page.locator('#copy-draft').click();
  assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),draft);
- checks.push('required fields, category sync, mail recipient/subject/body, clipboard, missing LINE hidden');
+ checks.push('required fields, category sync, mail recipient/subject/body, clipboard, configured LINE target');
  await page.locator('#details').fill('修正した相談');
  assert.equal(await page.locator('#result').isVisible(),false);
  await page.locator('#share-consent').check();
@@ -59,7 +60,7 @@ const base = process.env.BASE_URL || 'http://localhost:4173';
    assert.match(await page.locator('#mail-action').getAttribute('href'),/^mailto:/);
  }
  checks.push('all 3 categories');
- for(const url of ['https://line.me/ti/p/test-personal','https://lin.ee/test-personal','https://line.me.evil.example/ti/p/test','javascript:alert(1)','https://line.me/ti/p/test?x=1','https://page.line.me/official','https://line.me/','https://user@line.me/ti/p/test']){
+ for(const url of ['', 'https://line.me/ti/p/test-personal','https://lin.ee/test-personal','https://line.me.evil.example/ti/p/test','javascript:alert(1)','https://line.me/ti/p/test?x=1','https://page.line.me/official','https://line.me/','https://user@line.me/ti/p/test']){
   await page.route('**/site-config.js',route=>route.fulfill({contentType:'application/javascript',body:`window.SITE_CONFIG={contactEmail:'roy.0817.soccer@gmail.com',personalLineUrl:${JSON.stringify(url)}};`}));
   await page.goto(base);
   await page.locator('[data-service="career"]').click();

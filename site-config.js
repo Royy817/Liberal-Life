@@ -5,7 +5,7 @@ window.SITE_CONFIG = Object.freeze({
   // URL共有用のプレビューのみ。本番ビルドを禁止します。
   previewOnly: true,
   contactEmail: "roy.0817.soccer@gmail.com",
-  personalLineUrl: "",
+  personalLineUrl: "https://line.me/ti/p/9wwRevW_8u",
   operatorName: "尾島 蓮瑛（AIPLUN）",
   // 運営者情報・保管方針・本人同意の運用を確認してからtrueに変更。
   privacyConfirmed: false,
