@@ -59,3 +59,7 @@ body{background:var(--bg);font-family:"Noto Sans JP","Hiragino Kaku Gothic ProN"
 
 .detail-utility .detail-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:680px){.detail-utility .detail-feature-grid{grid-template-columns:1fr}}
+
+/* Locally hosted, responsive illustrative photographs. */
+.service-card-photo{display:block;margin:0 0 22px;position:relative;overflow:hidden;border-radius:10px;background:#e8eee2}.service-card-photo img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}.service-card-photo small{position:absolute;bottom:8px;right:8px;font-size:9px;background:#ffffffeb;color:#425d4a;padding:3px 7px;border-radius:4px}.detail-photo{margin:0;min-width:0;align-self:center}.detail-photo img{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;display:block;border-radius:20px;box-shadow:0 20px 45px #173e3610}.detail-photo figcaption{font-size:10px;color:#667665;line-height:1.9;margin-top:12px}.service-top{position:relative}
+@media(max-width:680px){.service-card-photo{margin-bottom:19px}.service-card .service-icon{top:0;right:0}.service-card-photo small{font-size:8px}.detail-photo img{border-radius:14px}.detail-photo figcaption{font-size:9px}}

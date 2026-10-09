@@ -8,8 +8,8 @@ const base = process.env.BASE_URL || 'http://localhost:4173';
   const http=require('node:http'); const path=require('node:path');
   server=http.createServer((req,res)=>{
    const name=req.url.split('?')[0]==='/'?'index.html':req.url.split('?')[0].slice(1);
-   if(!['index.html','privacy.html','career.html','rent.html','utility.html','style.css','script.js','site-config.js','robots.txt'].includes(name)){res.writeHead(404);res.end();return;}
-   res.setHeader('Content-Type',name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html; charset=utf-8');
+   if(!/^assets\/photos\/(career|rent|utility)-(480|960)\.webp$/.test(name) && !['index.html','privacy.html','career.html','rent.html','utility.html','style.css','script.js','site-config.js','robots.txt'].includes(name)){res.writeHead(404);res.end();return;}
+   res.setHeader('Content-Type',name.endsWith('.webp')?'image/webp':name.endsWith('.js')?'application/javascript':name.endsWith('.css')?'text/css':'text/html; charset=utf-8');
    res.end(fs.readFileSync(path.join(__dirname,'../public',name)));
   });
   await new Promise(resolve=>server.listen(4173,'127.0.0.1',resolve));
@@ -20,6 +20,8 @@ const base = process.env.BASE_URL || 'http://localhost:4173';
  const page = await context.newPage();page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(15000);
  page.on('pageerror', e=>failures.push(e.message));
  await page.goto(base);
+ for(const photo of await page.locator('.service-card-photo img').all()){await photo.evaluate(async img=>{await img.decode();});assert.equal(await photo.evaluate(img=>img.naturalWidth>0),true);}
+ checks.push('all service photographs load from local WebP assets');
  await page.locator('#copy-button').click();
  assert.match(await page.locator('#form-error').innerText(), /カテゴリー/);
  await page.locator('[data-service="rent"]').click();
@@ -100,6 +102,8 @@ const base = process.env.BASE_URL || 'http://localhost:4173';
    await page.setViewportSize({width,height:900});await page.goto(base+'/'+category+'.html');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`guide overflow ${category} ${width}`);
    assert.equal(await page.locator('h1').count(),1);
+   await page.locator('.detail-photo img').evaluate(async img=>{await img.decode();});
+   assert.equal(await page.locator('.detail-photo img').evaluate(img=>img.naturalWidth>0),true);
    assert.equal(await page.locator('a[href="https://www.liberal-life.com/businessoverview"]').count(),1);
    if(width===390||width===1440)await page.screenshot({path:`test-results/guide-${category}-${width}.png`,fullPage:true});
   }

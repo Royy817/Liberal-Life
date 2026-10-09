@@ -1,4 +1,4 @@
-import { mkdir, copyFile, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdir, copyFile, readFile, writeFile, rm, cp } from 'node:fs/promises';
 import vm from 'node:vm';
 const context = { window: {} };
 vm.runInNewContext(await readFile('site-config.js', 'utf8'), context);
@@ -15,6 +15,7 @@ const htmlFiles = ['index.html', 'privacy.html', 'career.html', 'rent.html', 'ut
 for (const file of [...htmlFiles, 'style.css', 'script.js', 'site-config.js']) {
   await copyFile(file, `public/${file}`);
 }
+await cp('assets', 'public/assets', { recursive: true });
 const preview = process.env.VERCEL_ENV !== 'production';
 // The user-authorized personal LINE link is available in protected previews.
 // Other unconfirmed personal contact details stay in source only.
