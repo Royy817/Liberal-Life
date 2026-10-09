@@ -22,6 +22,17 @@
   document.querySelectorAll('[data-direct-line-hint]').forEach(function (hint) {
     hint.hidden = !validLine;
   });
+  // Primary entries go directly to the validated personal LINE URL.
+  // Keep the message builder available when LINE is not configured.
+  document.querySelectorAll('[data-line-entry]').forEach(function (link) {
+    const label = link.querySelector('[data-line-entry-label]');
+    if (validLine) {
+      link.href = lineUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      if (label) label.textContent = '無料でLINE相談';
+    }
+  });
   const notice = document.getElementById('preview-notice');
   if (notice) notice.hidden = config.privacyConfirmed === true;
   document.querySelectorAll('[data-contact-email]').forEach(function (link) {
@@ -43,7 +54,7 @@
   const revealed = new WeakSet();
   const activeReveals = new Set();
   const revealTargets = Array.from(document.querySelectorAll(
-    '.hero-content > *, .hero-bottom, .intro-grid > div, .section-heading, .service-item, ' +
+    '.hero-content > *, .hero-bottom, .adviser-grid > div, .intro-grid > div, .section-heading, .service-item, ' +
     '.customer-heading > div, .customer-principles article, .customer-transparency, .flow-card, ' +
     '.consult-aside, .form-head, .faq-items details, .closing-inner > div, .closing-inner > a, ' +
     '.detail-hero-grid > div, .detail-photo, .detail-summary, .service-values, .detail-feature, ' +
