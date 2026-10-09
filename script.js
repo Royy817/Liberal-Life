@@ -24,9 +24,6 @@
   });
   const notice = document.getElementById('preview-notice');
   if (notice) notice.hidden = config.privacyConfirmed === true;
-  if (notice && validLine && document.getElementById('consult-form')) {
-    notice.textContent = 'PREVIEW — 個人LINEに接続済みです。限定共有で動作確認中です。';
-  }
   document.querySelectorAll('[data-contact-email]').forEach(function (link) {
     link.hidden = !validEmail;
     if (validEmail) { link.textContent = email; link.href = 'mailto:' + email; }
