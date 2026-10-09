@@ -12,7 +12,7 @@ if (process.env.VERCEL_ENV === 'production' && config.privacyConfirmed !== true)
 await rm('public', { recursive: true, force: true });
 await mkdir('public', { recursive: true });
 const htmlFiles = ['index.html', 'privacy.html', 'career.html', 'rent.html', 'utility.html'];
-for (const file of [...htmlFiles, 'style.css', 'script.js', 'site-config.js']) {
+for (const file of [...htmlFiles, 'style.css', 'script.js', 'site-config.js', 'favicon.ico']) {
   await copyFile(file, `public/${file}`);
 }
 await cp('assets', 'public/assets', { recursive: true });
