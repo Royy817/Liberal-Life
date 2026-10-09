@@ -32,6 +32,8 @@
     rent: '賃貸・引っ越し',
     utility: '電気・ガス・通信（インフラ）'
   };
+  const year = document.getElementById('year');
+  if (year) year.textContent = String(new Date().getFullYear());
   const form = document.getElementById('consult-form');
   if (!form) return;
   const cards = Array.from(document.querySelectorAll('[data-service]'));
@@ -44,8 +46,6 @@
   const mailAction = document.getElementById('mail-action');
   const copyButton = document.getElementById('copy-draft');
   const copyStatus = document.getElementById('copy-status');
-  const year = document.getElementById('year');
-  year.textContent = String(new Date().getFullYear());
   lineAction.hidden = !validLine;
   lineMissing.hidden = validLine || !validEmail;
   document.getElementById('no-contact').hidden = validLine || validEmail;
@@ -102,6 +102,12 @@
     });
   });
   categoryRadios.forEach(function (radio) { radio.addEventListener('change', refreshSelection); });
+  const initialCategory = new URLSearchParams(window.location.search).get('category');
+  if (initialCategory && Object.hasOwn(allowedCategories, initialCategory)) {
+    const initialRadio = categoryRadios.find(function (radio) { return radio.value === initialCategory; });
+    if (initialRadio) initialRadio.checked = true;
+    refreshSelection();
+  }
 
   function generateText(category, timing, nickname, details, consent) {
     const params = new URLSearchParams(window.location.search);

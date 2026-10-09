@@ -11,7 +11,8 @@ if (process.env.VERCEL_ENV === 'production' && config.privacyConfirmed !== true)
 }
 await rm('public', { recursive: true, force: true });
 await mkdir('public', { recursive: true });
-for (const file of ['index.html', 'privacy.html', 'style.css', 'script.js', 'site-config.js']) {
+const htmlFiles = ['index.html', 'privacy.html', 'career.html', 'rent.html', 'utility.html'];
+for (const file of [...htmlFiles, 'style.css', 'script.js', 'site-config.js']) {
   await copyFile(file, `public/${file}`);
 }
 const preview = process.env.VERCEL_ENV !== 'production';
@@ -20,7 +21,7 @@ const preview = process.env.VERCEL_ENV !== 'production';
 if (process.env.VERCEL_ENV === 'preview') {
   const safeConfig = { ...config, contactEmail: '', operatorName: 'AIPLUN', privacyConfirmed: false };
   await writeFile('public/site-config.js', 'window.SITE_CONFIG = Object.freeze(' + JSON.stringify(safeConfig, null, 2) + ');\n');
-  for (const file of ['index.html', 'privacy.html']) {
+  for (const file of htmlFiles) {
     let html = await readFile(`public/${file}`, 'utf8');
     for (const value of [config.contactEmail, config.operatorName]) {
       if (value) html = html.split(value).join(value === config.operatorName ? 'AIPLUN' : '');
@@ -29,7 +30,7 @@ if (process.env.VERCEL_ENV === 'preview') {
   }
 }
 if (preview) {
-  for (const file of ['index.html', 'privacy.html']) {
+  for (const file of htmlFiles) {
     const html = await readFile(`public/${file}`, 'utf8');
     await writeFile(`public/${file}`, html.replace('<head>', '<head>\n  <meta name="robots" content="noindex,nofollow">'));
   }
