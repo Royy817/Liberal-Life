@@ -15,6 +15,13 @@
     } catch (_) { return false; }
   }
   const validLine = isPersonalLineUrl(lineUrl);
+  document.querySelectorAll('[data-direct-line]').forEach(function (link) {
+    link.hidden = !validLine;
+    if (validLine) link.href = lineUrl;
+  });
+  document.querySelectorAll('[data-direct-line-hint]').forEach(function (hint) {
+    hint.hidden = !validLine;
+  });
   const notice = document.getElementById('preview-notice');
   if (notice) notice.hidden = config.privacyConfirmed === true;
   if (notice && validLine && document.getElementById('consult-form')) {
