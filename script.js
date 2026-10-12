@@ -47,6 +47,53 @@
     rent: '賃貸・引っ越し',
     utility: '電気・ガス・通信（インフラ）'
   };
+  const consultationId = 'AL-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' +
+    (window.crypto && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
+  const params = new URLSearchParams(window.location.search);
+  const safeCode = value => /^[a-zA-Z0-9_-]{1,40}$/.test(value || '') ? value : '';
+  const referrerCode = /^[a-zA-Z0-9_-]{2,40}$/.test(params.get('ref') || '') ? params.get('ref') : '';
+  const source = safeCode(params.get('utm_source'));
+  const channelNames = { sns: 'SNS', direct: '直接営業', friend: '友人・知人紹介', other: 'その他', unknown: '不明' };
+  const explicitChannel = params.get('channel');
+  const channel = Object.hasOwn(channelNames, explicitChannel || '') ? explicitChannel :
+    (/^(tiktok|instagram|youtube|x|twitter|sns)$/i.test(source) ? 'sns' : source === 'direct' ? 'direct' : source === 'friend' ? 'friend' : source ? 'other' : 'unknown');
+  const pageCategory = Object.keys(allowedCategories).find(key => document.body.classList.contains('detail-' + key));
+  function attributionLines() {
+    const lines = [];
+    if (referrerCode) lines.push('紹介者コード：' + referrerCode);
+    if (channel !== 'unknown') lines.push('流入経路：' + channelNames[channel]);
+    if (source) lines.push('流入元：' + source);
+    return lines;
+  }
+  // Carry only the three validated attribution fields; no browser persistence.
+  document.querySelectorAll('a[href]').forEach(function (link) {
+    const original = link.getAttribute('href');
+    if (!original || original.startsWith('#')) return;
+    try {
+      const target = new URL(original, location.href);
+      if (target.origin !== location.origin || !/\/(index|career|rent|utility|privacy)\.html$/.test(target.pathname)) return;
+      if (referrerCode) target.searchParams.set('ref', referrerCode);
+      if (channel !== 'unknown') target.searchParams.set('channel', channel);
+      if (source) target.searchParams.set('utm_source', source);
+      link.href = target.href;
+    } catch (_) { /* Non-HTTP links remain unchanged. */ }
+  });
+  if (validLine && attributionLines().length) {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'referral-dialog';
+    const title = document.createElement('h2'); title.id = 'referral-title'; title.textContent = '紹介情報も、LINEへ。';
+    dialog.setAttribute('aria-labelledby', title.id);
+    const note = document.createElement('p'); note.textContent = '個人LINEには紹介情報が自動で届きません。下の文章をコピーし、友だち追加後にトークへ貼り付けて送ってください。';
+    const draft = document.createElement('textarea'); draft.readOnly = true; draft.rows = 7; draft.setAttribute('aria-label', 'LINEに送る紹介情報');
+    draft.value = ['【AIPLUN LIFE｜相談のお問い合わせ】', '相談ID：' + consultationId, pageCategory ? 'ご相談カテゴリー：' + allowedCategories[pageCategory] : 'まずは相談したいです。', ...attributionLines()].join('\n');
+    const copy = document.createElement('button'); copy.type = 'button'; copy.className = 'button button-dark'; copy.textContent = '紹介情報をコピー';
+    const openLine = document.createElement('a'); openLine.className = 'button button-line'; openLine.href = lineUrl; openLine.target = '_blank'; openLine.rel = 'noopener noreferrer'; openLine.textContent = 'LINEを開く ↗';
+    const status = document.createElement('p'); status.className = 'small-status'; status.setAttribute('aria-live','polite');
+    copy.addEventListener('click', async function () { try { await navigator.clipboard.writeText(draft.value); status.textContent = 'コピーしました。LINEを開き、トークに貼り付けて送信してください。'; } catch (_) { draft.focus(); draft.select(); status.textContent = '文章を選択しました。手動でコピーしてLINEへ送ってください。'; } });
+    const close = document.createElement('button'); close.type = 'button'; close.className = 'referral-close'; close.textContent = '閉じる'; close.addEventListener('click', () => dialog.close());
+    dialog.append(close,title,note,draft,copy,openLine,status); document.body.append(dialog);
+    document.querySelectorAll('[data-direct-line],[data-line-entry]').forEach(function (link) { link.addEventListener('click', function (event) { if (dialog.showModal) { event.preventDefault(); dialog.showModal(); } }); });
+  }
   const year = document.getElementById('year');
   if (year) year.textContent = String(new Date().getFullYear());
   // Animate visible content once. Content stays readable without JS or animation support.
@@ -109,8 +156,6 @@
   lineMissing.hidden = validLine || !validEmail;
   document.getElementById('no-contact').hidden = validLine || validEmail;
   if (!validLine) document.getElementById('send-hint').textContent = validEmail ? '① メッセージを確認 → ② メールを作成 → ③ メールアプリで送信。アプリが起動しない場合は、コピーした文章を普段のメールに貼り付けてお送りください。宛先：' + email : 'コピーした文章を、お知らせ済みの連絡先に貼り付けて送信してください。';
-  const consultationId = 'AL-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' +
-    (window.crypto && crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : Math.random().toString(36).slice(2, 10));
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
   const detailsInput = form.elements.namedItem('details');
   const exampleButton = document.getElementById('insert-example');
@@ -169,9 +214,6 @@
   }
 
   function generateText(category, timing, nickname, details, consent) {
-    const params = new URLSearchParams(window.location.search);
-    const rawSource = params.get('ref') || params.get('utm_source') || '';
-    const source = rawSource.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
     const parts = [
       '【AIPLUN LIFE｜相談のお問い合わせ】',
       '相談ID：' + consultationId,
@@ -185,7 +227,7 @@
       '',
       '専門担当者の案内：' + (consent ? '話を聞いてみたい' : 'まずはAIPLUNへの相談のみ') + '\n第三者への情報共有：未同意（共有前に別途確認）'
     ];
-    if (source) parts.push('ご案内元：' + source);
+    parts.push(...attributionLines());
     parts.push('', '※AIPLUN相談窓口へのメッセージです。');
     return parts.join('\n');
   }

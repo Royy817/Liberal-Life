@@ -1,7 +1,7 @@
 # AIPLUN LIFE
 
 既存PR #1を引き継いだ静的相談窓口。対象は転職・賃貸・インフラのみ。
-LINE公式アカウント、データベース、外部アクセス解析は使用しません。
+相談の入口は個人LINE。運営者専用の紹介者・案件管理を追加し、管理データはサーバー側のPostgresへ保存します。外部アクセス解析は使用しません。
 
 ## 受付先の変更
 
@@ -28,7 +28,7 @@ python -m http.server 4173 --directory public
 
 このリポジトリ専用の独立したプロジェクトを使用。AIPLUN Studioのプロジェクトやドメインは変更しません。
 ビルド：`node scripts/build.mjs`、公開ディレクトリ：`public`、Framework：Other。
-公開ファイルは5ファイル＋robots.txtのみ。運用資料・テストは配信しません。
+相談サイトと管理画面の静的ファイルだけを配信し、管理APIは `api/admin.js` のVercel Functionで実行。運用資料・テスト・サーバーコード・認証設定は静的配信しません。
 プレビューはnoindex。`privacyConfirmed: false` の間は本番ビルドを拒否します。
 確認が済んだらprivacy.htmlを確定し、設定をtrueにして本番ビルド・再テスト・公開を行います。
 
@@ -39,3 +39,7 @@ python -m http.server 4173 --directory public
 ### 限定プレビューの受付先
 
 `VERCEL_ENV=preview node scripts/build.mjs` はデザイン確認用です。配信する設定から個人名・メールを除外（ユーザーが接続を指示した個人LINE URLは利用可能）し、フォームのメッセージ作成とコピーを利用できます。連絡先の正式な設定は `site-config.js` に保持します。ローカル動作確認は `node scripts/build.mjs` で実行できます。本番公開のガードは継続しています。
+
+## 紹介者・案件管理
+
+管理画面：`/admin/`。実データの利用にはDBと管理者ログインの設定が必要です。詳しくは [docs/ADMIN_SETUP.md](docs/ADMIN_SETUP.md)。`npm run test:admin` でSQL・認証・案件進捗を検証できます。

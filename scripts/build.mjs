@@ -16,6 +16,7 @@ for (const file of [...htmlFiles, 'style.css', 'script.js', 'site-config.js', 'f
   await copyFile(file, `public/${file}`);
 }
 await cp('assets', 'public/assets', { recursive: true });
+await cp('admin', 'public/admin', { recursive: true });
 const preview = process.env.VERCEL_ENV !== 'production';
 // The user-authorized personal LINE link is available in protected previews.
 // Other unconfirmed personal contact details stay in source only.

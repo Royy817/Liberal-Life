@@ -107,7 +107,8 @@ const base = process.env.BASE_URL || 'http://localhost:4173';
    assert.equal(await page.locator('a[href="https://www.liberal-life.com/businessoverview"]').count(),1);
    if(width===390||width===1440)await page.screenshot({path:`test-results/guide-${category}-${width}.png`,fullPage:true});
   }
-  await page.locator('.detail-hero .button').click();
+  assert.equal(await page.locator('.detail-hero [data-line-entry]').getAttribute('href'),'https://line.me/ti/p/9wwRevW_8u');
+  await page.locator('.detail-form-helper').click();
   assert.equal(await page.locator(`input[name="category"][value="${category}"]`).isChecked(),true);
   await page.locator('#timing').selectOption({index:1});await page.locator('#copy-button').click();
   assert.match(await page.locator('#draft').inputValue(),/未同意/);
