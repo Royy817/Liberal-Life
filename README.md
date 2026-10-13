@@ -42,4 +42,4 @@ python -m http.server 4173 --directory public
 
 ## 紹介者・案件管理
 
-管理画面：`/admin/`。実データの利用にはDBと管理者ログインの設定が必要です。詳しくは [docs/ADMIN_SETUP.md](docs/ADMIN_SETUP.md)。`npm run test:admin` でSQL・認証・案件進捗を検証できます。
+管理画面：`/admin/`。2026-10-13、限定共有Previewに専用Neon DBと管理者ログインを接続しました。本番公開はしていません。接続先・運用手順は [docs/ADMIN_SETUP.md](docs/ADMIN_SETUP.md)。`npm run test:admin` でSQL・認証・案件進捗を検証できます。
