@@ -1,0 +1,13 @@
+{
+  "name": "aiplun-life",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/dev.cjs",
+    "test:admin": "node --test tests/admin-api.test.cjs"
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": { "@neondatabase/serverless": "1.0.2" },
+  "devDependencies": { "@electric-sql/pglite": "0.3.14" }
+}
