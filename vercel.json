@@ -45,6 +45,9 @@
   "functions": {
     "api/admin.js": {
       "maxDuration": 30
+    },
+    "api/room.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
