@@ -32,7 +32,7 @@ function caseData(input) {
     provider: text(input.provider || '', 60, '共有先'), sharedItems: text(input.sharedItems || '', 120, '共有項目'),
     referrerCode: text(input.referrerCode || '', 40, '紹介者コード'), consultationId: text(input.consultationId || '', 64, '相談ID') };
   if (out.referrerCode && !/^[a-zA-Z0-9_-]{2,40}$/.test(out.referrerCode)) throw new InputError('紹介者コードを確認してください。');
-  if (out.consultationId && !/^AL-[a-zA-Z0-9-]{6,60}$/.test(out.consultationId)) throw new InputError('相談IDを確認してください。');
+  if (out.consultationId && !(/^(?:AL-[a-zA-Z0-9-]{6,60}|R-[0-9a-f-]{36})$/.test(out.consultationId))) throw new InputError('相談IDを確認してください。');
   out.reward = input.reward === '' || input.reward === null || input.reward === undefined ? null : Number(input.reward);
   if (out.reward !== null && (!Number.isSafeInteger(out.reward) || out.reward < 0 || out.reward > 100000000)) throw new InputError('紹介報酬は0〜100,000,000円の整数で入力してください。');
   const rank = stages.indexOf(out.stage);

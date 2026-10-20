@@ -104,6 +104,22 @@ function createHandler(options = {}) {
         if (!rows.length) throw new InputError('他の担当者が更新しました。再読み込みして確認してください。',409);
         return send(200,{ case:{...rows[0].data,id:rows[0].id,version:rows[0].version} });
       }
+      if (action === 'room-inquiries' && method === 'GET') {
+        const rows=await query('SELECT id,profile,stage,version,created_at,updated_at FROM life_room_inquiries ORDER BY created_at DESC LIMIT 200');
+        return send(200,{inquiries:rows});
+      }
+      if (action === 'room-inquiries' && method === 'PATCH') {
+        if(!/^R-[0-9a-f-]{36}$/.test(body.id||'')||!['new','contacting','introduced','closed'].includes(body.stage)||!Number.isSafeInteger(body.version)||body.version<1)throw new InputError('相談ID・対応状況を確認してください。');
+        const rows=await query(`WITH changed AS (UPDATE life_room_inquiries SET stage=$2,version=version+1,updated_at=now() WHERE id=$1 AND version=$3 RETURNING id,profile,stage,version,created_at,updated_at),logged AS (INSERT INTO life_audit(actor,action,entity_id,stage) SELECT $4,'room_updated',id,stage FROM changed) SELECT * FROM changed`,[body.id,body.stage,body.version,session.username]);
+        if(!rows.length)throw new InputError('別の担当者が更新しました。再読み込みしてください。',409);
+        return send(200,{inquiry:rows[0]});
+      }
+      if (action === 'room-delete' && method === 'POST') {
+        if(!/^R-[0-9a-f-]{36}$/.test(body.id||'')||!Number.isSafeInteger(body.version)||body.version<1)throw new InputError('相談IDを確認してください。');
+        const rows=await query(`WITH changed AS (DELETE FROM life_room_inquiries WHERE id=$1 AND version=$2 RETURNING id),logged AS (INSERT INTO life_audit(actor,action,entity_id) SELECT $3,'room_deleted',id FROM changed) SELECT id FROM changed`,[body.id,body.version,session.username]);
+        if(!rows.length)throw new InputError('記録が更新・削除されています。再読み込みしてください。',409);
+        return send(200,{ok:true});
+      }
       if (action === 'audit' && method === 'GET') return send(200,{ audit:await query('SELECT actor,action,entity_id,stage,created_at FROM life_audit ORDER BY id DESC LIMIT 100') });
       if (action === 'delete' && method === 'POST') {
         if (!/^C-[0-9a-f-]{36}$/.test(body.id || '')) throw new InputError('案件IDを確認してください。');

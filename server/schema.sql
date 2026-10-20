@@ -34,3 +34,19 @@ CREATE TABLE IF NOT EXISTS life_login_limits (
   attempts integer NOT NULL,
   expires_at timestamptz NOT NULL
 );
+
+-- Explicitly submitted room-search consultations, separated from minimal referral case records.
+CREATE TABLE IF NOT EXISTS life_room_inquiries (
+  id text PRIMARY KEY,
+  profile jsonb NOT NULL,
+  stage text NOT NULL DEFAULT 'new' CHECK (stage IN ('new','contacting','introduced','closed')),
+  version integer NOT NULL DEFAULT 1,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS life_room_inquiries_created_at_idx ON life_room_inquiries(created_at DESC);
+CREATE TABLE IF NOT EXISTS life_room_limits (
+  key text PRIMARY KEY,
+  attempts integer NOT NULL,
+  expires_at timestamptz NOT NULL
+);
